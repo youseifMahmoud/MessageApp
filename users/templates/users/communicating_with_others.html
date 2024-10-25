@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communicate with Others</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #4CAF50;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .search-bar input {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .search-bar button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            background-color: #fff;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .message-btn {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Notification styles */
+        .notification {
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h2>Communicate with Others</h2>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </header>
+
+        <div class="search-bar">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="text" name="search" placeholder="Search person">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        <div class="notification" id="notification-box">
+            You have a new notification from <span id="notification-username"></span>!
+        </div>
+
+        <ul>
+            {% for user in users %}
+                <li>
+                    <span>{{ user.username }}</span>
+                    <a href="{% url 'chat_with_user' user.id %}" class="message-btn">Message</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        function showNotification(username) {
+            const notificationBox = document.getElementById('notification-box');
+            document.getElementById('notification-username').textContent = username;
+            notificationBox.style.display = 'block';
+            setTimeout(() => {
+                notificationBox.style.display = 'none';
+            }, 5000);
+        }
+
+        // Simulate receiving a new message notification
+        setInterval(() => {
+            showNotification('RandomUser'); // Replace with real username when implemented
+        }, 10000); // For demo purposes
+    </script>
+</body>
+</html>
+

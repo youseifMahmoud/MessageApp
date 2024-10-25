@@ -1,0 +1,5 @@
+{% for message in messages %}
+    <div class="message {% if message.user == request.user %}sent{% else %}received{% endif %}">
+        {{ message.message }}
+    </div>
+{% endfor %}
