@@ -11,11 +11,10 @@ class ChatConsumer(AsyncConsumer):
         print('connected', event)
         user = self.scope['user']
         thread_id = self.scope['url_route']['kwargs']['thread_id']  # Get thread_id from URL
-        chat_room = f'thread_{thread_id}'  # Use thread_id for room name
-        self.chat_room = chat_room
+        self.chat_room = f'thread_{thread_id}'  # Use thread_id for room name
 
         await self.channel_layer.group_add(
-            chat_room,
+            self.chat_room,
             self.channel_name
         )
         await self.send({
@@ -46,16 +45,16 @@ class ChatConsumer(AsyncConsumer):
 
         await self.create_chat_message(thread_obj, sent_by_user, msg)
 
-        other_user_chat_room = f'thread_{thread_id}'  # Same thread for both users
+        # Use self.chat_room defined in websocket_connect
         response = {
             'message': msg,
             'sent_by': sent_by_id,
             'thread_id': thread_id
         }
 
-        # Send message to both users
+        # Send message to both users in the chat room
         await self.channel_layer.group_send(
-            other_user_chat_room,
+            self.chat_room,
             {
                 'type': 'chat_message',
                 'text': json.dumps(response)
@@ -82,7 +81,3 @@ class ChatConsumer(AsyncConsumer):
     def get_thread(self, thread_id):
         qs = Thread.objects.filter(id=thread_id)
         return qs.first() if qs.exists() else None
-
-    @database_sync_to_async
-    def create_chat_message(self, thread, user, msg):
-        ChatMessage.objects.create(thread=thread, user=user, message=msg)

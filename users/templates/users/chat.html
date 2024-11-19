@@ -111,10 +111,26 @@
 
     <script>
         $(document).ready(function() {
-            $('#chat-form').submit(function(e) {
-                e.preventDefault();  // Prevent page reload
+            const threadId = "{{ thread.id }}";  // احصل على معرف المحادثة
+            const chatSocket = new WebSocket(
+                'ws://' + window.location.host + '/ws/chat/' + threadId + '/'
+            );
 
-                var formData = new FormData(this);  // Create formData to include file upload
+            // التعامل مع الرسائل الواردة عبر WebSocket
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                $('#chat-box').append(data.message_html);  // إضافة الرسالة الجديدة
+                $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);  // التمرير إلى الأسفل
+            };
+
+            chatSocket.onclose = function(e) {
+                console.error('Chat socket closed unexpectedly');
+            };
+
+            $('#chat-form').submit(function(e) {
+                e.preventDefault();  // منع إعادة تحميل الصفحة
+
+                var formData = new FormData(this);  // إنشاء بيانات النموذج لتضمين رفع الملف
                 $.ajax({
                     url: "{% url 'chat_with_user' receiver.id %}",
                     method: 'POST',
@@ -122,28 +138,14 @@
                     processData: false,
                     contentType: false,
                     success: function(data) {
-                        $('#content').val('');  // Clear the input field
-                        $('#image').val('');  // Clear the file input field
-                        $('#chat-box').append(data);  // Append the new message
-                        $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);  // Scroll to bottom
+                        $('#content').val('');  // مسح حقل الإدخال
+                        $('#image').val('');  // مسح حقل الملف
                     },
                     error: function() {
                         alert('Failed to send message.');
                     }
                 });
             });
-
-            // Refresh messages every 5 seconds
-            setInterval(function() {
-                $.ajax({
-                    url: "{% url 'chat_with_user' receiver.id %}",
-                    method: 'GET',
-                    success: function(data) {
-                        $('#chat-box').html(data); // Reload all messages
-                        $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);  // Scroll to bottom
-                    }
-                });
-            }, 5000);
         });
     </script>
 </body>

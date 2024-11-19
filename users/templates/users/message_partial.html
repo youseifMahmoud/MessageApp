@@ -2,7 +2,7 @@
     <div class="username">{{ message.user.username }}</div>
     <div>{{ message.message }}</div>
     {% if message.image %}
-        <div><img src="{{ message.image.url }}" alt="Image" style="max-width: 100%;"></div>
+        <div><img class="w-10 h-10 rounded-full object-cover" src="{{ message.image.url }}" alt="Image" style="max-width: 100%;"></div>
     {% endif %}
     <div class="timestamp">{{ message.timestamp|date:"H:i" }}</div>
 </div>

@@ -49,20 +49,19 @@ def chat_with_user(request, user_id):
 
     if request.method == 'POST':
         content = request.POST.get('content', '').strip()
-        image = request.FILES.get('image')  # استلام الملف المرفوع
+        image = request.FILES.get('image')
 
-        if content or image:  # تأكد من وجود رسالة أو صورة
+        if content or image:
             message = Message.objects.create(thread=thread, user=request.user, message=content, image=image)
             # إعادة الرسالة الجديدة كاستجابة AJAX
             return render(request, 'users/message_partial.html', {'message': message})
 
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'users/messages_partial.html', {'messages': messages})
-
+    # Pass the thread_id to the template to use it in the WebSocket connection
     return render(request, 'users/chat.html', {
         'receiver': receiver,
         'messages': messages,
-        'thread': thread
+        'thread': thread,
+        'thread_id': thread.id  # تمرير معرف المحادثة إلى القالب
     })
 
 @login_required
